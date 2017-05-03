@@ -1,4 +1,14 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 3.0)
+
+##
+# Hunter Cross-platform package manager
+##
+include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "https://github.com/mchiasson/hunter/archive/v0.18.47.tar.gz"
+    SHA1 "f0c476a3a0f9edd6182936d8c4460811f112189c"
+    LOCAL
+)
 
 project(libwebp C)
 
