@@ -171,7 +171,7 @@ typedef uint16_t fixed_y_t;   // unsigned type with extra SFIX precision for W
 #if defined(USE_GAMMA_COMPRESSION)
 
 // float variant of gamma-correction
-// We use tables of different size and precision for the Rec709
+// We use tables of different size and precision for the Rec709 / BT2020
 // transfer function.
 #define kGammaF (1./0.45)
 static float kGammaToLinearTabF[MAX_Y_T + 1];   // size scales with Y_FIX
@@ -183,8 +183,8 @@ static WEBP_TSAN_IGNORE_FUNCTION void InitGammaTablesF(void) {
     int v;
     const double norm = 1. / MAX_Y_T;
     const double scale = 1. / kGammaTabSize;
-    const double a = 0.099;
-    const double thresh = 0.018;
+    const double a = 0.09929682680944;
+    const double thresh = 0.018053968510807;
     for (v = 0; v <= MAX_Y_T; ++v) {
       const double g = norm * v;
       if (g <= thresh * 4.5) {
@@ -1105,9 +1105,14 @@ static int Import(WebPPicture* const picture,
 
   if (import_alpha) {
     uint32_t* dst = picture->argb;
+    const int do_copy = !swap_rb && !ALPHA_IS_LAST;
     assert(step == 4);
     for (y = 0; y < height; ++y) {
-      VP8PackARGB(a_ptr, r_ptr, g_ptr, b_ptr, width, dst);
+      if (do_copy) {
+        memcpy(dst, r_ptr, width * sizeof(*dst));
+      } else {
+        VP8PackARGB(a_ptr, r_ptr, g_ptr, b_ptr, width, dst);
+      }
       a_ptr += rgb_stride;
       r_ptr += rgb_stride;
       g_ptr += rgb_stride;

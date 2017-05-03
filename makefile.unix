@@ -29,6 +29,8 @@ ifeq ($(strip $(shell uname)), Darwin)
   EXTRA_LIBS  += -L/opt/local/lib
   GL_LIBS = -framework GLUT -framework OpenGL
 else
+  EXTRA_FLAGS += -I/usr/local/include
+  EXTRA_LIBS  += -L/usr/local/lib
   GL_LIBS = -lglut -lGL
 endif
 
@@ -167,6 +169,7 @@ DSP_DEC_OBJS = \
     src/dsp/yuv.o \
     src/dsp/yuv_mips32.o \
     src/dsp/yuv_mips_dsp_r2.o \
+    src/dsp/yuv_neon.o \
     src/dsp/yuv_sse2.o \
 
 DSP_ENC_OBJS = \
@@ -192,6 +195,8 @@ DSP_ENC_OBJS = \
     src/dsp/lossless_enc_neon.o \
     src/dsp/lossless_enc_sse2.o \
     src/dsp/lossless_enc_sse41.o \
+    src/dsp/ssim.o \
+    src/dsp/ssim_sse2.o \
 
 ENC_OBJS = \
     src/enc/alpha_enc.o \
@@ -223,6 +228,7 @@ EX_FORMAT_DEC_OBJS = \
     imageio/jpegdec.o \
     imageio/metadata.o \
     imageio/pngdec.o \
+    imageio/pnmdec.o \
     imageio/tiffdec.o \
     imageio/webpdec.o \
 
@@ -328,8 +334,8 @@ OUT_LIBS += src/libwebp.a
 EXTRA_LIB = extras/libwebpextras.a
 OUT_EXAMPLES = examples/cwebp examples/dwebp
 EXTRA_EXAMPLES = examples/gif2webp examples/vwebp examples/webpmux \
-                 examples/anim_diff examples/img2webp
-OTHER_EXAMPLES = extras/get_disto extras/webp_quality
+                 examples/anim_diff examples/img2webp examples/webpinfo
+OTHER_EXAMPLES = extras/get_disto extras/webp_quality extras/vwebp_sdl
 
 OUTPUT = $(OUT_LIBS) $(OUT_EXAMPLES)
 ifeq ($(MAKECMDGOALS),clean)
@@ -380,6 +386,7 @@ examples/gif2webp: examples/gif2webp.o $(GIFDEC_OBJS)
 examples/vwebp: examples/vwebp.o
 examples/webpmux: examples/webpmux.o
 examples/img2webp: examples/img2webp.o
+examples/webpinfo: examples/webpinfo.o
 
 examples/anim_diff: examples/libanim_util.a examples/libgifdec.a
 examples/anim_diff: src/demux/libwebpdemux.a examples/libexample_util.a
@@ -411,6 +418,8 @@ examples/img2webp: examples/libexample_util.a imageio/libimageio_util.a
 examples/img2webp: imageio/libimagedec.a
 examples/img2webp: src/mux/libwebpmux.a src/libwebp.a
 examples/img2webp: EXTRA_LIBS += $(CWEBP_LIBS)
+examples/webpinfo: examples/libexample_util.a imageio/libimageio_util.a
+examples/webpinfo: src/libwebpdecoder.a
 
 extras/get_disto: extras/get_disto.o
 extras/get_disto: imageio/libimagedec.a imageio/libimageio_util.a src/libwebp.a
@@ -419,6 +428,13 @@ extras/get_disto: EXTRA_LIBS += $(CWEBP_LIBS)
 extras/webp_quality: extras/webp_quality.o
 extras/webp_quality: imageio/libimageio_util.a
 extras/webp_quality: $(EXTRA_LIB) src/libwebp.a
+
+extras/vwebp_sdl: extras/vwebp_sdl.o
+extras/vwebp_sdl: extras/webp_to_sdl.o
+extras/vwebp_sdl: imageio/libimageio_util.a
+extras/vwebp_sdl: src/libwebp.a
+extras/vwebp_sdl: EXTRA_FLAGS += -DWEBP_HAVE_SDL
+extras/vwebp_sdl: EXTRA_LIBS += -lSDL
 
 $(OUT_EXAMPLES) $(EXTRA_EXAMPLES) $(OTHER_EXAMPLES):
 	$(CC) -o $@ $^ $(LDFLAGS)

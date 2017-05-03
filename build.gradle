@@ -148,6 +148,7 @@ model {
             include "yuv.c"
             include "yuv_mips32.c"
             include "yuv_mips_dsp_r2.c"
+            include "yuv_neon.$NEON"
             include "yuv_sse2.c"
             srcDir "src/utils"
             include "bit_reader_utils.c"
@@ -179,6 +180,8 @@ model {
             include "lossless_enc_neon.$NEON"
             include "lossless_enc_sse2.c"
             include "lossless_enc_sse41.c"
+            include "ssim.c"
+            include "ssim_sse2.c"
             srcDir "src/enc"
             include "alpha_enc.c"
             include "analysis_enc.c"
@@ -288,6 +291,7 @@ model {
             include "jpegdec.c"
             include "metadata.c"
             include "pngdec.c"
+            include "pnmdec.c"
             include "tiffdec.c"
             include "webpdec.c"
           }
@@ -385,6 +389,24 @@ model {
           source {
             srcDir "./examples"
             include "img2webp.c"
+          }
+        }
+      }
+    }
+
+    webpinfo_example(NativeExecutableSpec) {
+      binaries {
+        all {
+          lib library: "example_util", linkage: "static"
+          lib library: "imageio_util", linkage: "static"
+          lib library: "webp"
+        }
+      }
+      sources {
+        c {
+          source {
+            srcDir "./examples"
+            include "webpinfo.c"
           }
         }
       }

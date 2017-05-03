@@ -79,6 +79,7 @@ dsp_dec_srcs := \
     src/dsp/yuv.c \
     src/dsp/yuv_mips32.c \
     src/dsp/yuv_mips_dsp_r2.c \
+    src/dsp/yuv_neon.$(NEON) \
     src/dsp/yuv_sse2.c \
 
 dsp_enc_srcs := \
@@ -101,6 +102,8 @@ dsp_enc_srcs := \
     src/dsp/lossless_enc_neon.$(NEON) \
     src/dsp/lossless_enc_sse2.c \
     src/dsp/lossless_enc_sse41.c \
+    src/dsp/ssim.c \
+    src/dsp/ssim_sse2.c \
 
 enc_srcs := \
     src/enc/alpha_enc.c \

@@ -229,6 +229,7 @@ DSP_DEC_OBJS = \
     $(DIROBJ)\dsp\yuv.obj \
     $(DIROBJ)\dsp\yuv_mips32.obj \
     $(DIROBJ)\dsp\yuv_mips_dsp_r2.obj \
+    $(DIROBJ)\dsp\yuv_neon.obj \
     $(DIROBJ)\dsp\yuv_sse2.obj \
 
 DSP_ENC_OBJS = \
@@ -254,6 +255,8 @@ DSP_ENC_OBJS = \
     $(DIROBJ)\dsp\lossless_enc_neon.obj \
     $(DIROBJ)\dsp\lossless_enc_sse2.obj \
     $(DIROBJ)\dsp\lossless_enc_sse41.obj \
+    $(DIROBJ)\dsp\ssim.obj \
+    $(DIROBJ)\dsp\ssim_sse2.obj \
 
 EX_ANIM_UTIL_OBJS = \
     $(DIROBJ)\examples\anim_util.obj \
@@ -263,6 +266,7 @@ IMAGEIO_DEC_OBJS = \
     $(DIROBJ)\imageio\jpegdec.obj \
     $(DIROBJ)\imageio\metadata.obj \
     $(DIROBJ)\imageio\pngdec.obj \
+    $(DIROBJ)\imageio\pnmdec.obj \
     $(DIROBJ)\imageio\tiffdec.obj \
     $(DIROBJ)\imageio\webpdec.obj \
     $(DIROBJ)\imageio\wicdec.obj \
@@ -344,7 +348,8 @@ all: ex
 OUT_EXAMPLES = $(DIRBIN)\cwebp.exe $(DIRBIN)\dwebp.exe
 EXTRA_EXAMPLES = $(DIRBIN)\vwebp.exe $(DIRBIN)\webpmux.exe \
                  $(DIRBIN)\img2webp.exe $(DIRBIN)\get_disto.exe \
-                 $(DIRBIN)\webp_quality.exe
+                 $(DIRBIN)\webp_quality.exe $(DIRBIN)\vwebp_sdl.exe \
+                 $(DIRBIN)\webpinfo.exe
 
 ex: $(OUT_LIBS) $(OUT_EXAMPLES)
 all: ex $(EXTRA_EXAMPLES)
@@ -366,6 +371,9 @@ $(DIRBIN)\gif2webp.exe: $(EX_UTIL_OBJS) $(IMAGEIO_UTIL_OBJS) $(LIBWEBPMUX)
 $(DIRBIN)\gif2webp.exe: $(LIBWEBP)
 $(DIRBIN)\vwebp.exe: $(DIROBJ)\examples\vwebp.obj $(EX_UTIL_OBJS)
 $(DIRBIN)\vwebp.exe: $(IMAGEIO_UTIL_OBJS) $(LIBWEBPDEMUX) $(LIBWEBP)
+$(DIRBIN)\vwebp_sdl.exe: $(DIROBJ)\extras\vwebp_sdl.obj
+$(DIRBIN)\vwebp_sdl.exe: $(DIROBJ)\extras\webp_to_sdl.obj
+$(DIRBIN)\vwebp_sdl.exe: $(IMAGEIO_UTIL_OBJS) $(LIBWEBP)
 $(DIRBIN)\webpmux.exe: $(DIROBJ)\examples\webpmux.obj $(LIBWEBPMUX)
 $(DIRBIN)\webpmux.exe: $(EX_UTIL_OBJS) $(IMAGEIO_UTIL_OBJS) $(LIBWEBP)
 $(DIRBIN)\img2webp.exe: $(DIROBJ)\examples\img2webp.obj $(LIBWEBPMUX)
@@ -373,10 +381,12 @@ $(DIRBIN)\img2webp.exe: $(IMAGEIO_DEC_OBJS)
 $(DIRBIN)\img2webp.exe: $(EX_UTIL_OBJS) $(IMAGEIO_UTIL_OBJS) $(LIBWEBP)
 $(DIRBIN)\get_disto.exe: $(DIROBJ)\extras\get_disto.obj
 $(DIRBIN)\get_disto.exe: $(IMAGEIO_DEC_OBJS) $(IMAGEIO_UTIL_OBJS) $(LIBWEBP)
-
 $(DIRBIN)\webp_quality.exe: $(DIROBJ)\extras\webp_quality.obj
 $(DIRBIN)\webp_quality.exe: $(IMAGEIO_UTIL_OBJS)
 $(DIRBIN)\webp_quality.exe: $(EXTRAS_OBJS) $(LIBWEBP)
+$(DIRBIN)\webpinfo.exe: $(DIROBJ)\examples\webpinfo.obj
+$(DIRBIN)\webpinfo.exe: $(IMAGEIO_DEC_OBJS)
+$(DIRBIN)\webpinfo.exe: $(EX_UTIL_OBJS) $(IMAGEIO_UTIL_OBJS) $(LIBWEBP)
 
 $(OUT_EXAMPLES): $(EX_UTIL_OBJS) $(LIBWEBP)
 $(EX_UTIL_OBJS) $(IMAGEIO_UTIL_OBJS): $(OUTPUT_DIRS)
