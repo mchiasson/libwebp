@@ -62,52 +62,20 @@ if(MATH_LIBRARY)
   list(APPEND WEBP_DEP_LIBRARIES ${MATH_LIBRARY})
 endif()
 
-# Find the standard image libraries.
-set(WEBP_DEP_IMG_LIBRARIES)
-set(WEBP_DEP_IMG_INCLUDE_DIRS)
-foreach(I_LIB PNG JPEG TIFF)
-  find_package(${I_LIB})
-  set(WEBP_HAVE_${I_LIB} ${${I_LIB}_FOUND})
-  if(${I_LIB}_FOUND)
-    list(APPEND WEBP_DEP_IMG_LIBRARIES ${${I_LIB}_LIBRARIES})
-    list(APPEND WEBP_DEP_IMG_INCLUDE_DIRS
-         ${${I_LIB}_INCLUDE_DIR} ${${I_LIB}_INCLUDE_DIRS})
-  endif()
-endforeach()
-if(WEBP_DEP_IMG_INCLUDE_DIRS)
-  list(REMOVE_DUPLICATES WEBP_DEP_IMG_INCLUDE_DIRS)
-endif()
-
-# GIF detection, gifdec isn't part of the imageio lib.
-include(CMakePushCheckState)
-set(WEBP_DEP_GIF_LIBRARIES)
-set(WEBP_DEP_GIF_INCLUDE_DIRS)
-find_package(GIF)
-set(WEBP_HAVE_GIF ${GIF_FOUND})
-if(GIF_FOUND)
-  # GIF find_package only locates the header and library, it doesn't fail
-  # compile tests when detecting the version, but falls back to 3 (as of at
-  # least cmake 3.7.2). Make sure the library links to avoid incorrect
-  # detection when cross compiling.
-  cmake_push_check_state()
-  set(CMAKE_REQUIRED_LIBRARIES ${GIF_LIBRARIES})
-  set(CMAKE_REQUIRED_INCLUDES ${GIF_INCLUDE_DIR})
-  check_c_source_compiles("
-      #include <gif_lib.h>
-      int main(void) {
-        (void)DGifOpenFileHandle;
-        return 0;
-      }
-      " GIF_COMPILES
-  )
-  cmake_pop_check_state()
-  if(GIF_COMPILES)
-    list(APPEND WEBP_DEP_GIF_LIBRARIES ${GIF_LIBRARIES})
-    list(APPEND WEBP_DEP_GIF_INCLUDE_DIRS ${GIF_INCLUDE_DIR})
-  else()
-    unset(GIF_FOUND)
-  endif()
-endif()
+find_package(PNG CONFIG REQUIRED)
+find_package(JPEG CONFIG REQUIRED)
+find_package(TIFF CONFIG REQUIRED)
+find_package(giflib CONFIG REQUIRED)
+set(WEBP_HAVE_PNG 1)
+set(WEBP_HAVE_JPEG 1)
+set(WEBP_HAVE_TIFF 1)
+set(WEBP_HAVE_GIF 1)
+set(PNG_FOUND 1)
+set(JPEG_FOUND 1)
+set(TIFF_FOUND 1)
+set(GIF_FOUND 1)
+list(APPEND WEBP_DEP_IMG_LIBRARIES PNG::png JPEG::jpeg TIFF::libtiff)
+list(APPEND WEBP_DEP_GIF_LIBRARIES giflib::giflib)
 
 ## Check for specific headers.
 include(CheckIncludeFiles)
