@@ -1,6 +1,17 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 3.0)
+
+include("cmake/HunterGate.cmake")
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.20.14.tar.gz"
+    SHA1 "18cdbf5c47abdda437c73bf5437b7c3c65afe47c"
+)
 
 project(libwebp C)
+
+hunter_add_package(PNG)
+hunter_add_package(Jpeg)
+hunter_add_package(TIFF)
+hunter_add_package(giflib)
 
 # Options for coder / decoder executables.
 option(WEBP_ENABLE_SIMD "Enable any SIMD optimization." ON)
@@ -320,10 +331,7 @@ install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/webp/decode.h
               ${CMAKE_CURRENT_SOURCE_DIR}/src/webp/mux.h
               ${CMAKE_CURRENT_SOURCE_DIR}/src/webp/mux_types.h
               ${CMAKE_CURRENT_SOURCE_DIR}/src/webp/types.h
-        DESTINATION include/webp)
-install(TARGETS ${INSTALLED_LIBRARIES}
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib)
+        DESTINATION include/webp COMPONENT Development)
 
 # Create the CMake version file.
 include(CMakePackageConfigHelpers)
@@ -333,16 +341,28 @@ write_basic_package_version_file(
   COMPATIBILITY AnyNewerVersion
 )
 
+set(targets_export_name "WebPTargets")
+
 # Create the Config file.
 include(CMakePackageConfigHelpers)
-set(ConfigPackageLocation share/WebP/cmake/)
+set(ConfigPackageLocation lib/cmake/WebP)
 configure_package_config_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/WebPConfig.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/WebPConfig.cmake
   INSTALL_DESTINATION ${ConfigPackageLocation}
 )
 
+install(TARGETS ${INSTALLED_LIBRARIES}
+    EXPORT ${targets_export_name}
+    LIBRARY DESTINATION lib COMPONENT Runtime
+    ARCHIVE DESTINATION lib COMPONENT Development
+    RUNTIME DESTINATION bin COMPONENT Runtime
+    PUBLIC_HEADER DESTINATION include COMPONENT Development
+    BUNDLE DESTINATION bin COMPONENT Runtime
+)
+
 # Install the generated CMake files.
+install(EXPORT ${targets_export_name} NAMESPACE "WebP::" DESTINATION lib/cmake/WebP)
 install(
   FILES "${CMAKE_CURRENT_BINARY_DIR}/WebPConfigVersion.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/WebPConfig.cmake"
