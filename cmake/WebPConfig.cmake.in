@@ -3,7 +3,10 @@
 find_package(PNG CONFIG REQUIRED)
 find_package(JPEG CONFIG REQUIRED)
 find_package(TIFF CONFIG REQUIRED)
-find_package(giflib CONFIG REQUIRED)
+if(NOT ANDROID OR NOT MINGW OR NOT MSYS OR NOT CYGWIN)
+    # giflib is currently not supported by hunter on Android, MinGW and MSYS
+    find_package(giflib CONFIG REQUIRED)
+endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/@targets_export_name@.cmake")
 check_required_components("@PROJECT_NAME@")
