@@ -116,28 +116,29 @@ else()
   add_definitions(-Wall)
 endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${WEBP_DEP_INCLUDE_DIRS})
-add_library(webpdecode OBJECT ${WEBP_DEC_SRCS})
-add_library(webpdspdecode OBJECT ${WEBP_DSP_COMMON_SRCS} ${WEBP_DSP_DEC_SRCS})
-add_library(webputilsdecode OBJECT ${WEBP_UTILS_COMMON_SRCS}
+add_library(webpdecoder 
+  ${WEBP_DEC_SRCS}
+  ${WEBP_DSP_COMMON_SRCS}
+  ${WEBP_DSP_DEC_SRCS}
+  ${WEBP_UTILS_COMMON_SRCS}
   ${WEBP_UTILS_DEC_SRCS})
-add_library(webpdecoder $<TARGET_OBJECTS:webpdecode>
-  $<TARGET_OBJECTS:webpdspdecode> $<TARGET_OBJECTS:webputilsdecode>)
 target_link_libraries(webpdecoder PUBLIC ${WEBP_DEP_LIBRARIES})
 
 # Build the webp library.
-add_library(webpencode OBJECT ${WEBP_ENC_SRCS})
-add_library(webpdsp OBJECT ${WEBP_DSP_COMMON_SRCS} ${WEBP_DSP_DEC_SRCS}
-  ${WEBP_DSP_ENC_SRCS})
-add_library(webputils OBJECT ${WEBP_UTILS_COMMON_SRCS} ${WEBP_UTILS_DEC_SRCS}
+add_library(webp
+  ${WEBP_DEC_SRCS}
+  ${WEBP_DSP_COMMON_SRCS}
+  ${WEBP_DSP_DEC_SRCS}
+  ${WEBP_DSP_ENC_SRCS}
+  ${WEBP_ENC_SRCS}
+  ${WEBP_UTILS_COMMON_SRCS}
+  ${WEBP_UTILS_DEC_SRCS}
   ${WEBP_UTILS_ENC_SRCS})
-add_library(webp $<TARGET_OBJECTS:webpdecode> $<TARGET_OBJECTS:webpdsp>
-  $<TARGET_OBJECTS:webpencode> $<TARGET_OBJECTS:webputils>)
 target_link_libraries(webp PUBLIC ${WEBP_DEP_LIBRARIES})
 
-# Make sure the OBJECT libraries are built with position independent code
+# Make sure the libraries are built with position independent code
 # (it is not ON by default).
-set_target_properties(webpdecode webpdspdecode webputilsdecode
-  webpencode webpdsp webputils PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(webpdecoder webp PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 # Build the webp demux library.
 add_library(webpdemux ${WEBP_DEMUX_SRCS})
