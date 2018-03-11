@@ -2,9 +2,15 @@
 
 find_package(PNG CONFIG REQUIRED)
 find_package(JPEG CONFIG REQUIRED)
-find_package(TIFF CONFIG REQUIRED)
-if(NOT ANDROID AND NOT MINGW AND NOT MSYS AND NOT CYGWIN)
-    # giflib is currently not supported by hunter on Android, MinGW and MSYS
+if(NOT MSYS)
+    # TIFF is currently not supported by hunter on MSYS
+    # https://github.com/ingenue/hunter/blob/pkg.tiff/appveyor.yml#L33
+    find_package(TIFF CONFIG REQUIRED)
+endif()
+if(NOT ANDROID AND NOT MINGW AND NOT MSYS)
+    # giflib is currently not supported by hunter on Android, MinGW and MSYSa
+    # https://github.com/ingenue/hunter/blob/pkg.giflib/.travis.yml#L36-L44
+    # https://github.com/ingenue/hunter/blob/pkg.giflib/appveyor.yml#L30-L38
     find_package(giflib CONFIG REQUIRED)
 endif()
 
